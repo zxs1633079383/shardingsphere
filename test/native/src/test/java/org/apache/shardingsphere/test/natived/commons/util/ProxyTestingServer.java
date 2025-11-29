@@ -45,7 +45,7 @@ public final class ProxyTestingServer {
     /**
      * Call this method to start the Server side of ShardingSphere Proxy in a separate thread.
      *
-     * @param configAbsolutePath The absolute path to the directory where {@code global.yaml} is located.
+     * @param configAbsolutePath The absolute path to the directory where {@code } is located.
      */
     public ProxyTestingServer(final String configAbsolutePath) {
         proxyPort = InstanceSpec.getRandomPort();

@@ -204,7 +204,7 @@ databaseName: mattermost_db
 
 dataSources:
   mattermost_db:
-    url: jdbc:postgresql://193.168.2.100:30724/mattermost
+    url: postgres://postgres:lnx@2025@193.168.2.100:30724/mattermost?sslmode=disable\u0026connect_timeout=10
 #    url: jdbc:postgresql://127.0.0.1/mattermost
     username: postgres
     password: lnx@2025
@@ -213,8 +213,3 @@ dataSources:
     maxLifetimeMilliseconds: 600000
     maxPoolSize: 300
     minPoolSize: 1
-
-rules:
-  - !SINGLE
-    tables:
-      - "*.*"

@@ -168,4 +168,17 @@ class PostgreSQLColumnTypeTest {
     void assertGetValue() {
         assertThat(PostgreSQLColumnType.INT8.getValue(), is(20));
     }
+
+    @Test
+    void assertValueOfJDBCTypeForVarbit() {
+        PostgreSQLColumnType columnType = PostgreSQLColumnType.valueOfJDBCType(Types.OTHER, "varbit");
+        assertThat(columnType,is(PostgreSQLColumnType.VARBIT));
+    }
+
+    @Test
+    void assertValueOfJDBCTypeForUdt() {
+        PostgreSQLColumnType columnType = PostgreSQLColumnType.valueOfJDBCType(Types.OTHER, "post_type");
+        assertThat(columnType,is(PostgreSQLColumnType.UDT_GENERIC));
+    }
+
 }
