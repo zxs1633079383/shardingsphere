@@ -44,10 +44,8 @@ public final class DataTypeLoader {
         Map<String, Integer> result = loadStandardDataTypes(databaseMetaData);
         DialectDataTypeOption dataTypeOption = new DatabaseTypeRegistry(databaseType).getDialectDatabaseMetaData().getDataTypeOption();
         result.putAll(dataTypeOption.getExtraDataTypes());
-        // ⭐ 自动扫描 public schema 下的 UDT (enum, composite, domain)
         result.putAll(dataTypeOption.loadUDTTypes(databaseMetaData.getConnection()));
-
-
+        
         return result;
     }
     

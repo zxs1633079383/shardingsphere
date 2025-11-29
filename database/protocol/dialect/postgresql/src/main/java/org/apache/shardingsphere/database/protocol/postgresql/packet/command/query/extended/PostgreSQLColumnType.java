@@ -37,8 +37,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Getter
 public enum PostgreSQLColumnType implements BinaryColumnType {
-
-
     
     UNSPECIFIED(0, new PostgreSQLUnspecifiedValueParser()),
     
@@ -133,7 +131,7 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
     CHAR_ARRAY(1002, new PostgreSQLVarcharValueParser()),
     
     VARBIT(1562, new PostgreSQLVarBitValueParser()),
-
+    
     UDT_GENERIC(1633, new PostgreSQLVarcharValueParser()),
     
     VARBIT_ARRAY(1563, new PostgreSQLVarcharValueParser()),
@@ -151,8 +149,8 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
     POINT_ARRAY(1017, new PostgreSQLVarcharValueParser()),
     
     BOX(603, new PostgreSQLVarcharValueParser()),
-
-    JSONB(1634,new PostgreSQLUDTValueParser()),
+    
+    JSONB(1634, new PostgreSQLUDTValueParser()),
     
     JSONB_ARRAY(3807, new PostgreSQLVarcharValueParser()),
     
@@ -163,10 +161,10 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
     REF_CURSOR(1790, new PostgreSQLVarcharValueParser()),
     
     REF_CURSOR_ARRAY(2201, new PostgreSQLVarcharValueParser());
-
+    
     private static final Logger log = LoggerFactory.getLogger(PostgreSQLColumnType.class);
     private String typeName;
-
+    
     public PostgreSQLColumnType withTypeName(String typeName) {
         this.typeName = typeName;
         return this;
@@ -201,11 +199,11 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
         JDBC_TYPE_AND_COLUMN_TYPE_MAP.put(Types.STRUCT, VARCHAR);
         JDBC_TYPE_AND_COLUMN_TYPE_MAP.put(Types.ARRAY, TEXT_ARRAY);
     }
-
+    
     private static boolean isVarbit(final int jdbcType, final String columnTypeName) {
         return Types.OTHER == jdbcType && ("varbit".equalsIgnoreCase(columnTypeName) || "bit varying".equalsIgnoreCase(columnTypeName));
     }
-
+    
     /**
      * Value of JDBC type.
      *
@@ -214,7 +212,7 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
      */
     public static PostgreSQLColumnType valueOfJDBCType(final int jdbcType) {
         Preconditions.checkArgument(JDBC_TYPE_AND_COLUMN_TYPE_MAP.containsKey(jdbcType), "Can not find JDBC type `%s` in PostgreSQL column type", jdbcType);
-        //todo 新增
+        
         if (jdbcType == Types.OTHER) {
             return UDT_GENERIC;
         }

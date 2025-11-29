@@ -36,7 +36,7 @@ public final class ColumnMetaData {
     private final boolean primaryKey;
     
     private final boolean generated;
-
+    
     private final String typeName; // 新增字段，用于 PG UDT、JSONB 等
     
     private final boolean caseSensitive;
