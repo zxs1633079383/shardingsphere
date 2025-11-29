@@ -133,7 +133,7 @@ class PostgreSQLColumnTypeTest {
     @Test
     void assertValueOfJDBCTypeForOther() {
         PostgreSQLColumnType sqlColumnType = PostgreSQLColumnType.valueOfJDBCType(Types.OTHER);
-        assertThat(sqlColumnType, is(PostgreSQLColumnType.UDT_GENERIC));
+        assertThat(sqlColumnType, is(PostgreSQLColumnType.JSON));
     }
     
     @Test
@@ -178,7 +178,7 @@ class PostgreSQLColumnTypeTest {
     @Test
     void assertValueOfJDBCTypeForUdt() {
         PostgreSQLColumnType columnType = PostgreSQLColumnType.valueOfJDBCType(Types.OTHER, "post_type");
-        assertThat(columnType,is(PostgreSQLColumnType.UDT_GENERIC));
+        assertThat(columnType,is(PostgreSQLColumnType.JSON));
     }
 
 }

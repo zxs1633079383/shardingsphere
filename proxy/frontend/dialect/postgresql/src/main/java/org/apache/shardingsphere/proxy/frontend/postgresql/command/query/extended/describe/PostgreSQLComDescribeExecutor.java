@@ -154,7 +154,9 @@ public final class PostgreSQLComDescribeExecutor implements CommandExecutor {
             }
         }
     }
-    
+
+
+
     private Collection<Integer> getUnspecifiedTypeParameterIndexes(final PostgreSQLServerPreparedStatement preparedStatement) {
         Collection<Integer> result = new HashSet<>();
         ListIterator<PostgreSQLColumnType> parameterTypesListIterator = preparedStatement.getParameterTypes().listIterator();
