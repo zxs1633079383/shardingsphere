@@ -48,7 +48,6 @@ public final class PostgreSQLServerPreparedStatement implements ServerPreparedSt
     
     private final List<PostgreSQLColumnType> parameterTypes;
 
-    // PostgreSQLServerPreparedStatement 中新增字段 & getter/setter
     private final List<String> parameterTypeNames;
     
     private final List<Integer> actualParameterMarkerIndexes;
