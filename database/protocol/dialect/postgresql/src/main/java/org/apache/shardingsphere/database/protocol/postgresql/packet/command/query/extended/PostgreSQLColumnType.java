@@ -131,9 +131,7 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
     CHAR_ARRAY(1002, new PostgreSQLVarcharValueParser()),
     
     VARBIT(1562, new PostgreSQLVarBitValueParser()),
-    
-    UDT_GENERIC(1633, new PostgreSQLVarcharValueParser()),
-    
+
     VARBIT_ARRAY(1563, new PostgreSQLVarcharValueParser()),
     
     UUID(2950, new PostgreSQLVarcharValueParser()),
@@ -150,7 +148,7 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
     
     BOX(603, new PostgreSQLVarcharValueParser()),
     
-    JSONB(1634, new PostgreSQLUDTValueParser()),
+    JSONB(3802, new PostgreSQLJsonBValueParser()),
     
     JSONB_ARRAY(3807, new PostgreSQLVarcharValueParser()),
     
@@ -161,14 +159,6 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
     REF_CURSOR(1790, new PostgreSQLVarcharValueParser()),
     
     REF_CURSOR_ARRAY(2201, new PostgreSQLVarcharValueParser());
-    
-    private static final Logger log = LoggerFactory.getLogger(PostgreSQLColumnType.class);
-    private String typeName;
-    
-    public PostgreSQLColumnType withTypeName(String typeName) {
-        this.typeName = typeName;
-        return this;
-    }
     
     private static final Map<Integer, PostgreSQLColumnType> JDBC_TYPE_AND_COLUMN_TYPE_MAP = new HashMap<>(values().length, 1F);
     
@@ -212,10 +202,6 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
      */
     public static PostgreSQLColumnType valueOfJDBCType(final int jdbcType) {
         Preconditions.checkArgument(JDBC_TYPE_AND_COLUMN_TYPE_MAP.containsKey(jdbcType), "Can not find JDBC type `%s` in PostgreSQL column type", jdbcType);
-        
-        if (jdbcType == Types.OTHER) {
-            return UDT_GENERIC;
-        }
         return JDBC_TYPE_AND_COLUMN_TYPE_MAP.get(jdbcType);
     }
     
@@ -239,8 +225,11 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
         if (isVarbit(jdbcType, columnTypeName)) {
             return VARBIT;
         }
-        if (Types.OTHER == jdbcType && columnTypeName != null && !columnTypeName.isEmpty()) {
-            return UDT_GENERIC.withTypeName(columnTypeName);
+        if (isJSON(jdbcType, columnTypeName)) {
+            return JSON;
+        }
+        if (isJSONB(jdbcType, columnTypeName)) {
+            return JSONB;
         }
         return valueOfJDBCType(jdbcType);
     }
@@ -292,5 +281,13 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
             }
         }
         throw new PostgreSQLProtocolException("Can not find value `%s` in PostgreSQL column type.", value);
+    }
+
+    private static boolean isJSON(final int jdbcType, final String columnTypeName) {
+        return Types.OTHER == jdbcType && "json".equalsIgnoreCase(columnTypeName);
+    }
+
+    private static boolean isJSONB(final int jdbcType, final String columnTypeName) {
+        return Types.OTHER == jdbcType && "jsonb".equalsIgnoreCase(columnTypeName);
     }
 }

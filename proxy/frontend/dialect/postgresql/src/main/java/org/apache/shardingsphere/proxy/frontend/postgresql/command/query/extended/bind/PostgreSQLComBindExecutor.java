@@ -62,23 +62,27 @@ public final class PostgreSQLComBindExecutor implements CommandExecutor {
         
         List<PostgreSQLColumnType> types = preparedStatement.getParameterTypes();
         List<String> typeNames = preparedStatement.getParameterTypeNames();
-        
+
         for (int i = 0; i < rawParams.size(); i++) {
             PostgreSQLColumnType type = types.get(i);
             Object value = rawParams.get(i);
-            
+
             if (value == null) {
                 continue;
             }
-            
-            if (type == PostgreSQLColumnType.UDT_GENERIC || type == PostgreSQLColumnType.JSONB) {
-                String typeName = typeNames.get(i);
+
+            if (type == PostgreSQLColumnType.JSONB || type == PostgreSQLColumnType.JSON) {
+                String typeName = (typeNames.size() > i) ? typeNames.get(i) : null;
+
+                if (typeName == null || typeName.isEmpty()) {
+                    typeName = (type == PostgreSQLColumnType.JSONB) ? "jsonb" : "json";
+                }
+
                 String text = value.toString();
-                
                 PGobject obj = new PGobject();
                 obj.setType(typeName);
                 obj.setValue(text);
-                
+
                 rawParams.set(i, obj);
             }
         }
