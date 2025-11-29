@@ -240,7 +240,6 @@ public enum PostgreSQLColumnType implements BinaryColumnType {
             return VARBIT;
         }
         if (Types.OTHER == jdbcType && columnTypeName != null && !columnTypeName.isEmpty()) {
-            log.info("ColumnTypeName " + columnTypeName);
             return UDT_GENERIC.withTypeName(columnTypeName);
         }
         return valueOfJDBCType(jdbcType);
