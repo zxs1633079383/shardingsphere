@@ -29,8 +29,10 @@ This guide is written **for AI coding agents only**. Follow it literally; improv
 ### Testing Requirements
 - **Test-Driven**: design for testability, ensure unit-test coverage, and keep background unit tests under 60s to avoid job stalls.
 - **Quality Assurance**: run static checks, formatting, and code reviews.
+- **Checkstyle Gate**: do not hand off code with Checkstyle/Spotless failures—run the relevant module check locally and fix before completion.
 - **Continuous Verification**: rely on automated tests and integration validation.
 - **Public-Only Tests**: unit tests must exercise behavior via public APIs only; never use reflection to access private members.
+- **Coverage Pledge**: when 100% coverage is required, enumerate every branch/path and its planned test before coding, then implement once to reach 100% without post-hoc fixes.
 
 ## Tool Usage Guide
 
@@ -240,10 +242,15 @@ Always state which topology, registry, and engine versions (e.g., MySQL 5.7 vs 8
 - Mock heavy dependencies (database/cache/registry/network) and prefer mocking over building deep object graphs; avoid `RETURNS_DEEP_STUBS` unless chained interactions demand it.
 - Before changing how mocks are created, scan the repository for similar tests (e.g., other rule decorators or executor tests) and reuse their proven mocking pattern instead of inventing a new structure.
 - When constructors hide collaborators, use `Plugins.getMemberAccessor()` to inject mocks and document why SPI creation is bypassed.
-- Cache SPI loader results (`OrderedSPILoader`, `TypedSPILoader`, `DatabaseTypedSPILoader`, etc.) per key at the test-class level to avoid redundant lookups.
 - If a test already uses `@ExtendWith(AutoMockExtension.class)`, always declare the needed static collaborators via `@StaticMockSettings` instead of hand-written `mockStatic` blocks; justify any exception explicitly in the plan before coding.
-- When a binder under test instantiates another binder (e.g., `SelectStatementBinder`, `TableSegmentBinder`), prefer `mockConstruction` and capture the injected context rather than reimplementing the constructor logic; only skip this approach if the plan explains why it cannot work.
-- Manage every static binder (`ColumnSegmentBinder`, `ExpressionSegmentBinder`, etc.) via `@StaticMockSettings` to avoid ad-hoc try-with-resources `mockStatic` blocks; if multiple static dependencies are needed, list each one in the plan.
+- Before adding coverage to a utility with multiple return paths, list every branch (no rule, non-Single config, wildcard blocks, missing data node, positive path, collection overload) and map each to a test; update the plan whenever this checklist changes.
+- Prefer imports over fully-qualified class names inside code and tests; if a class is used, add an import rather than using the full package path inline.
+- Before coding tests, prepare a concise branch-and-data checklist (all branches, inputs, expected outputs) and keep the plan in sync when the checklist changes.
+- When a component is available via SPI (e.g., `TypedSPILoader`, `DatabaseTypedSPILoader`, `PushDownMetaDataRefresher`), obtain the instance through SPI by default; note any exceptions in the plan.
+- Do not mix Mockito matchers with raw arguments; choose a single style per invocation, and ensure the Mockito extension aligns with the mocking approach.
+- Never leave fully-qualified class names in production or test code; if a class is referenced, add an import and verify via a quick scan (`rg "\\." <path>`) before finishing.
+- When the user requires full branch/line coverage, treat 100% coverage as a blocking condition: enumerate branches, map tests, and keep adding cases until all branches are covered or explicitly waived; record the coverage requirement in the plan and self-check before concluding.
+- Compliance is mandatory: before any coding, re-read AGENTS.md and convert all hard requirements (SPI usage, no FQCN, mocking rules, coverage targets, planning steps) into a checklist in the plan; do not proceed or report completion until every item is satisfied or explicitly waived by the user.
 
 ## Brevity & Signal
 - Prefer tables/bullets over prose walls; cite file paths (`kernel/src/...`) directly.
