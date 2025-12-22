@@ -23,11 +23,14 @@ ENV LOCAL_PATH=/opt/shardingsphere-proxy
 ADD target/${APP_NAME}.tar.gz /opt
 RUN mv /opt/${APP_NAME} ${LOCAL_PATH} && mkdir -p ${LOCAL_PATH}/ext-lib
 
-FROM eclipse-temurin:25-jdk
+FROM eclipse-temurin:25-jdk@sha256:572fe7b5b3ca8beb3b3aca96a7a88f1f7bc98a3bdffd03784a4568962c1a963a
 LABEL org.opencontainers.image.authors="ShardingSphere dev@shardingsphere.apache.org"
 
 ENV LOCAL_PATH=/opt/shardingsphere-proxy
 ENV IS_DOCKER=true
 
 COPY --from=prepare ${LOCAL_PATH} ${LOCAL_PATH}
+COPY ./ext-lib/postgresql-42.7.8.jar /opt/shardingsphere-proxy/ext-lib/
+COPY ./ext-lib/xpa-sharding-algorithm-1.0-SNAPSHOT.jar /opt/shardingsphere-proxy/lib/
+COPY ./ext-lib/xpa-sharding-algorithm-1.0-SNAPSHOT.jar /opt/shardingsphere-proxy/ext-lib/
 ENTRYPOINT ${LOCAL_PATH}/bin/start.sh ${PORT}

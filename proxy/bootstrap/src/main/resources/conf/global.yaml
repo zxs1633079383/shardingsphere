@@ -79,3 +79,8 @@
 #  proxy-frontend-ssl-enabled: false
 #  proxy-frontend-ssl-cipher: ''
 #  proxy-frontend-ssl-version: TLSv1.2,TLSv1.3
+
+
+
+props:
+  sql-show: true
