@@ -84,8 +84,38 @@ public final class PostgreSQLDataTypeOption implements DialectDataTypeOption {
     
     @Override
     public Map<String, Integer> loadUDTTypes(Connection connection) throws SQLException {
+        // Get schemas to search for UDTs from configuration
+        String[] schemas = getUDTSchemas();
+        return loadUDTTypes(connection, schemas);
+    }
+
+    /**
+     * Load UDT types from the specified schemas (for configurability).
+     *
+     * @param connection database connection
+     * @param schemas schemas to search for UDTs
+     * @return map of UDT names to SQL types
+     * @throws SQLException SQL exception
+     */
+    public Map<String, Integer> loadUDTTypes(Connection connection, String... schemas) throws SQLException {
         Map<String, Integer> result = new CaseInsensitiveMap<>();
-        
+
+        // Build schema filter condition
+        StringBuilder schemaCondition = new StringBuilder();
+        if (schemas.length > 0) {
+            schemaCondition.append("n.nspname IN (");
+            for (int i = 0; i < schemas.length; i++) {
+                if (i > 0) {
+                    schemaCondition.append(", ");
+                }
+                schemaCondition.append("?");
+            }
+            schemaCondition.append(")");
+        } else {
+            // Default to public schema if no schemas specified
+            schemaCondition.append("n.nspname = 'public'");
+        }
+
         String sql =
                 "SELECT\n" +
                         "    t.typname AS udt_name,\n" +
@@ -95,18 +125,34 @@ public final class PostgreSQLDataTypeOption implements DialectDataTypeOption {
                         "         JOIN pg_namespace n ON n.oid = t.typnamespace\n" +
                         "         LEFT JOIN pg_class c ON c.oid = t.typrelid\n" +
                         "WHERE\n" +
-                        "    n.nspname = 'public'\n" +
+                        "    " + schemaCondition.toString() + "\n" +
                         "  AND t.typtype IN ('c', 'e', 'd')   \n" +
                         "  AND (c.relkind IS NULL OR c.relkind = 'c')  \n" +
                         "ORDER BY udt_name;";
-        
-        try (
-                PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                result.put(rs.getString("udt_name"), Types.OTHER);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            // Set parameters for schema names
+            if (schemas.length > 0) {
+                for (int i = 0; i < schemas.length; i++) {
+                    ps.setString(i + 1, schemas[i]);
+                }
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.put(rs.getString("udt_name"), Types.OTHER);
+                }
             }
         }
         return result;
+    }
+
+    private String[] getUDTSchemas() {
+        String schemasProperty = System.getProperty("shardingsphere.postgresql.udt.schemas");
+        if (schemasProperty != null && !schemasProperty.trim().isEmpty()) {
+            return schemasProperty.split(",");
+        }
+        // Default to public schema for backward compatibility
+        return new String[]{"public"};
     }
 }
